@@ -64,8 +64,6 @@ services:
 
   forum:
     image: regis/openedx-forum:hawthorn
-    build:
-      context: ./forum
     environment:
       API_KEY: "forumapikey"
       SEARCH_SERVER: "http://elasticsearch:9200"
@@ -79,8 +77,6 @@ services:
 
   lms:
     image: ${OPENEDX_DOCKER_IMAGE:-regis/openedx:hawthorn}
-    build:
-      context: ./openedx
     environment:
       SERVICE_VARIANT: lms
     restart: unless-stopped
@@ -98,8 +94,6 @@ services:
 
   cms:
     image: ${OPENEDX_DOCKER_IMAGE:-regis/openedx:hawthorn}
-    build:
-      context: ./openedx
     environment:
       SERVICE_VARIANT: cms
     restart: unless-stopped
@@ -118,8 +112,6 @@ services:
   # We could probably create one service per queue here. For small instances, it is not necessary.
   lms_worker:
     image: ${OPENEDX_DOCKER_IMAGE:-regis/openedx:hawthorn}
-    build:
-      context: ./openedx
     environment:
       SERVICE_VARIANT: lms
       C_FORCE_ROOT: "1" # run celery tasks as root #nofear
@@ -133,8 +125,6 @@ services:
 
   cms_worker:
     image: ${OPENEDX_DOCKER_IMAGE:-regis/openedx:hawthorn}
-    build:
-      context: ./openedx
     environment:
       SERVICE_VARIANT: cms
       C_FORCE_ROOT: "1" # run celery tasks as root #nofear
@@ -145,3 +135,54 @@ services:
       - ./data/cms:/openedx/data
     depends_on:
       - cms
+
+  {% if ACTIVATE_NOTES %}
+  ############# Notes: backend store for edX Student Notes
+  notes:
+    image: regis/openedx-notes:hawthorn
+    networks:
+      default:
+        aliases:
+          - notes.openedx
+    volumes:
+      - ./config/notes:/openedx/config
+      - ./data/notes:/openedx/data
+    restart: unless-stopped
+    depends_on:
+      - mysql
+  {% endif %}
+
+  {% if ACTIVATE_XQUEUE %}
+  ############# Xqueue: external grading of Open edX problems
+  xqueue:
+    image: regis/openedx-xqueue:hawthorn
+    volumes:
+      - ./config/xqueue:/openedx/config
+      - ./data/xqueue:/openedx/data
+    restart: unless-stopped
+    depends_on:
+      - mysql
+
+  xqueue_consumer:
+    image: regis/openedx-xqueue:hawthorn
+    volumes:
+      - ./config/xqueue:/openedx/config
+      - ./data/xqueue:/openedx/data
+    restart: unless-stopped
+    # Run 12 workers per queue
+    command: ./manage.py run_consumer 12
+    depends_on:
+      - mysql
+  {% endif %}
+
+  {% if ACTIVATE_PORTAINER %}
+  ############# Portainer: container supervision with a web UI
+  portainer:
+    image: portainer/portainer:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/portainer:/data
+    restart: unless-stopped
+    depends_on:
+      - nginx
+  {% endif %}
