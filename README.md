@@ -267,7 +267,7 @@ The following sections describe how to modify various aspects of the docker imag
 
 ### Custom themes
 
-Comprehensive theming is enabled by default. Put your themes in `openedx/themes/themes`:
+Comprehensive theming is enabled by default. Put your themes in `openedx/themes`:
 
     openedx/themes/
         mycustomtheme1/
