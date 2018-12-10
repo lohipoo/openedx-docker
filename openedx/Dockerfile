@@ -90,7 +90,7 @@ COPY settings/cms/*.py /openedx/config/universal/cms/
 # 1. xmodule_assets: run xmodule.static_content.main, which lists all xblocks and generates webpack manifest in common/static/xmodule
 # 2. pavelib.assets.process_npm_assets: copy libraries installed via npm to common/static/common/*/vendor
 # 3. webpack: generate webpack-stats.json
-# 4. compile_sass: compile each sass file individually with libsass. The list of themes to process
+# 4. compile_sass: compile each sass file individually with libsass.
 # 5. pavelib.assets.collect_assets: run ./manage.py lms/cms collectstatic. This is the only command that requires a settings file.
 RUN xmodule_assets common/static/xmodule \
     && python -c "import pavelib.assets; pavelib.assets.process_npm_assets()" \ 
