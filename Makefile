@@ -108,7 +108,7 @@ assets-development: assets-development-lms assets-development-cms ## Generate st
 
 assets: ## Generate production-ready static assets
 	docker-compose -f docker-compose-scripts.yml run --rm \
-		--volume=$(PWD)/data/:/data/lms/ --volume=$(PWD)/data/cms/:/data/cms/ openedx bash -c \
+		--volume=$(PWD)/data/lms/:/data/lms/ --volume=$(PWD)/data/cms/:/data/cms/ openedx bash -c \
 		"rm -rf /data/lms/staticfiles /data/cms/staticfiles \
 		&& cp -r /openedx/data/staticfiles /data/lms/ \
 		&& cp -r /openedx/data/staticfiles /data/cms/"
